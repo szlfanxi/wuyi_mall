@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wuyi.mall.mapper.UserCouponMapper">
+
+    <!-- 按用户ID和状态查询优惠券（分页） -->
+    <select id="selectByUserId" resultType="com.wuyi.mall.entity.UserCoupon">
+        SELECT * FROM user_coupon
+        WHERE user_id = #{userId}
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY receive_time DESC
+    </select>
+
+    <!-- 检查用户是否已领取该优惠券 -->
+    <select id="checkUserCouponExists" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM user_coupon
+        WHERE user_id = #{userId}
+          AND coupon_id = #{couponId}
+    </select>
+
+    <!-- 使用优惠券（更新状态和使用时间） -->
+    <update id="useCoupon">
+        UPDATE user_coupon
+        SET status = 2,
+            use_time = now(),
+            order_id = #{orderId}
+        WHERE id = #{id}
+          AND status = 1
+    </update>
+
+    <!-- 查询用户可用的优惠券列表（用于下单时选择） -->
+    <select id="selectAvailableCoupons" resultType="com.wuyi.mall.entity.UserCoupon">
+        SELECT uc.* FROM user_coupon uc
+        LEFT JOIN coupon c ON uc.coupon_id = c.id
+        WHERE uc.user_id = #{userId}
+          AND uc.status = 1
+          AND now() BETWEEN c.start_time AND c.end_time
+          AND c.shop_id = #{shopId}
+          AND c.threshold &lt;= #{totalAmount}
+        ORDER BY c.value DESC
+    </select>
+
+    <!-- 按订单ID查询使用的优惠券 -->
+    <select id="selectByOrderId" resultType="com.wuyi.mall.entity.UserCoupon">
+        SELECT * FROM user_coupon
+        WHERE order_id = #{orderId}
+    </select>
+
+</mapper>

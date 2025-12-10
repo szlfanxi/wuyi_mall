@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wuyi.mall.mapper.ProductPriceLogMapper">
+
+    <!-- 查询商家商品价格变动日志（分页） -->
+    <select id="selectMerchantPriceLogs" resultType="com.wuyi.mall.vo.ProductPriceLogVO">
+        SELECT
+            log.id,
+            log.product_id AS productId,
+            p.name AS productName,
+            log.old_price AS oldPrice,
+            log.new_price AS newPrice,
+            log.operate_user_id AS operateUserId,
+            u.nickname AS operateUserNickname,
+            log.operate_time AS operateTime,
+            log.operate_type AS operateType
+        FROM product_price_log log
+        LEFT JOIN product p ON log.product_id = p.id
+        LEFT JOIN user u ON log.operate_user_id = u.id
+        WHERE log.product_id = #{params.productId}
+        <if test="params.startTime != null">
+            AND log.operate_time &gt;= #{params.startTime}
+        </if>
+        <if test="params.endTime != null">
+            AND log.operate_time &lt;= #{params.endTime}
+        </if>
+        ORDER BY log.operate_time DESC
+    </select>
+
+    <!-- 查询管理员价格变动日志（分页，支持多条件筛选） -->
+    <select id="selectAdminPriceLogs" resultType="com.wuyi.mall.vo.ProductPriceLogVO">
+        SELECT
+            log.id,
+            log.product_id AS productId,
+            p.name AS productName,
+            p.shop_id AS shopId,
+            s.name AS shopName,
+            log.old_price AS oldPrice,
+            log.new_price AS newPrice,
+            log.operate_user_id AS operateUserId,
+            u.nickname AS operateUserNickname,
+            log.operate_time AS operateTime,
+            log.operate_type AS operateType
+        FROM product_price_log log
+        LEFT JOIN product p ON log.product_id = p.id
+        LEFT JOIN shop s ON p.shop_id = s.id
+        LEFT JOIN user u ON log.operate_user_id = u.id
+        <where>
+            <if test="params.productId != null">
+                AND log.product_id = #{params.productId}
+            </if>
+            <if test="params.shopId != null">
+                AND p.shop_id = #{params.shopId}
+            </if>
+            <if test="params.operateUserId != null">
+                AND log.operate_user_id = #{params.operateUserId}
+            </if>
+            <if test="params.startTime != null">
+                AND log.operate_time &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null">
+                AND log.operate_time &lt;= #{params.endTime}
+            </if>
+        </where>
+        ORDER BY log.operate_time DESC
+    </select>
+
+</mapper>
