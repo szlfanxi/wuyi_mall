@@ -1,0 +1,58 @@
+# 服务器配置
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# 数据源配置
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/wuyi_mall?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: sa
+    password: 123456
+
+# MyBatis Plus配置
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.wuyi.mall.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# JWT配置
+jwt:
+  # JWT密钥，建议生产环境使用复杂的随机字符串
+  secret: wuyi_mall_jwt_secret_key_20251204
+  # JWT有效期，单位：毫秒，2小时
+  expire: 7200000
+
+# 支付配置
+payment:
+  # 支付宝支付配置
+  alipay:
+    app-id: your_alipay_app_id
+    merchant-id: your_alipay_merchant_id
+    private-key: your_alipay_private_key
+    public-key: your_alipay_public_key
+    gateway-url: https://openapi.alipaydev.com/gateway.do
+    return-url: http://localhost:8080/pay/callback/alipay/return
+    notify-url: http://localhost:8080/pay/callback/alipay
+  # 微信支付配置
+  wechat:
+    app-id: your_wechat_app_id
+    merchant-id: your_wechat_merchant_id
+    private-key: your_wechat_private_key
+    public-key: your_wechat_public_key
+    gateway-url: https://api.mch.weixin.qq.com/v3/pay/transactions/native
+    notify-url: http://localhost:8080/pay/callback/wechat
+  # 信用卡支付配置
+  credit-card:
+    app-id: your_credit_card_app_id
+    merchant-id: your_credit_card_merchant_id
+    private-key: your_credit_card_private_key
+    public-key: your_credit_card_public_key
+    gateway-url: https://api.creditcardgateway.com/pay
+    notify-url: http://localhost:8080/pay/callback/credit-card
+  # 支付超时时间（分钟）
+  timeout: 15

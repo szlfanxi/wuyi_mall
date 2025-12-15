@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wuyi.mall.mapper.DiscountActivityProductMapper">
+
+    <!-- 批量新增活动商品关联 -->
+    <insert id="batchInsert">
+        INSERT INTO discount_activity_product (activity_id, product_id)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.activityId}, #{item.productId})
+        </foreach>
+    </insert>
+
+    <!-- 按活动ID查询关联的商品ID列表 -->
+    <select id="selectProductIdsByActivityId" resultType="java.lang.Long">
+        SELECT product_id FROM discount_activity_product
+        WHERE activity_id = #{activityId}
+    </select>
+
+    <!-- 按活动ID删除所有关联的商品 -->
+    <delete id="deleteByActivityId">
+        DELETE FROM discount_activity_product
+        WHERE activity_id = #{activityId}
+    </delete>
+
+    <!-- 检查商品是否已关联到活动 -->
+    <select id="checkProductInActivity" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM discount_activity_product
+        WHERE activity_id = #{activityId}
+          AND product_id = #{productId}
+    </select>
+
+</mapper>

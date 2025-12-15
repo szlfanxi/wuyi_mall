@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wuyi.mall.mapper.AuditLogMapper">
+
+    <!-- 查询审核日志列表（分页） -->
+    <select id="selectAuditLogs" resultType="com.wuyi.mall.entity.AuditLog">
+        SELECT * FROM audit_log
+        WHERE 1=1
+        <if test="operateType != null and operateType != ''">
+            AND operate_type = #{operateType}
+        </if>
+        <if test="operateResult != null">
+            AND operate_result = #{operateResult}
+        </if>
+        <if test="startTime != null">
+            AND operate_time >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND operate_time &lt;= #{endTime}
+        </if>
+        <if test="operateUserId != null">
+            AND operate_user_id = #{operateUserId}
+        </if>
+        ORDER BY operate_time DESC
+    </select>
+
+    <!-- 根据目标ID和操作类型查询审核日志 -->
+    <select id="selectByTargetIdAndType" resultType="com.wuyi.mall.entity.AuditLog">
+        SELECT * FROM audit_log
+        WHERE target_id = #{targetId} AND operate_type = #{operateType}
+        ORDER BY operate_time DESC
+        LIMIT 1
+    </select>
+
+</mapper>

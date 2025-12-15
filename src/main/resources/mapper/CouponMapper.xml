@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wuyi.mall.mapper.CouponMapper">
+
+    <!-- 按商铺ID和状态查询优惠券（分页） -->
+    <select id="selectByShopId" resultType="com.wuyi.mall.entity.Coupon">
+        SELECT * FROM coupon
+        WHERE shop_id = #{shopId}
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <if test="couponType != null and couponType != ''">
+            AND coupon_type = #{couponType}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 按状态和时间查询有效优惠券（用于缓存） -->
+    <select id="selectValidCoupons" resultType="com.wuyi.mall.entity.Coupon">
+        SELECT * FROM coupon
+        WHERE status = 1
+          AND now() BETWEEN start_time AND end_time
+          AND remain_num > 0
+        <if test="shopId != null">
+            AND shop_id = #{shopId}
+        </if>
+        ORDER BY start_time DESC
+    </select>
+
+    <!-- 管理员查询所有优惠券（分页，支持多条件筛选） -->
+    <select id="selectByAdmin" resultType="com.wuyi.mall.entity.Coupon">
+        SELECT * FROM coupon
+        <where>
+            <if test="params.shopId != null">
+                AND shop_id = #{params.shopId}
+            </if>
+            <if test="params.couponType != null and params.couponType != ''">
+                AND coupon_type = #{params.couponType}
+            </if>
+            <if test="params.startTime != null">
+                AND create_time &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null">
+                AND create_time &lt;= #{params.endTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 扣减优惠券剩余库存 -->
+    <update id="decreaseRemainNum">
+        UPDATE coupon
+        SET remain_num = remain_num - 1
+        WHERE id = #{id}
+          AND remain_num > 0
+    </update>
+
+    <!-- 根据ID查询优惠券（包含商品信息） -->
+    <select id="selectWithProductInfo" resultType="com.wuyi.mall.entity.Coupon">
+        SELECT * FROM coupon
+        WHERE id = #{id}
+    </select>
+
+</mapper>

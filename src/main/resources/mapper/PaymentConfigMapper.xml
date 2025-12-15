@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wuyi.mall.mapper.PaymentConfigMapper">
+
+    <!-- 根据支付方式查询支付配置 -->
+    <select id="selectByPayType" resultType="com.wuyi.mall.entity.PaymentConfig">
+        SELECT * FROM payment_config WHERE pay_type = #{payType}
+    </select>
+
+    <!-- 根据支付方式和状态查询支付配置 -->
+    <select id="selectByPayTypeAndStatus" resultType="com.wuyi.mall.entity.PaymentConfig">
+        SELECT * FROM payment_config WHERE pay_type = #{payType} AND status = #{status}
+    </select>
+
+</mapper>
