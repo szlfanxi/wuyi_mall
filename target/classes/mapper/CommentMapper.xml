@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wuyi.mall.mapper.CommentMapper">
+
+    <!-- 根据订单详情ID查询评价 -->
+    <select id="selectByOrderItemId" resultType="com.wuyi.mall.entity.Comment">
+        SELECT * FROM comment WHERE order_item_id = #{orderItemId}
+    </select>
+
+    <!-- 查询客户自身评价列表（分页） -->
+    <select id="selectByUserId" resultType="com.wuyi.mall.vo.CommentVO">
+        SELECT
+            c.id,
+            c.order_item_id,
+            c.product_id,
+            p.name AS productName,
+            p.image AS productImage,
+            c.user_id,
+            u.nickname AS userNickname,
+            c.content,
+            c.score,
+            c.images,
+            c.create_time
+        FROM comment c
+        LEFT JOIN product p ON c.product_id = p.id
+        LEFT JOIN user u ON c.user_id = u.id
+        WHERE c.user_id = #{params.userId}
+        <if test="params.productId != null">
+            AND c.product_id = #{params.productId}
+        </if>
+        <if test="params.createTimeStart != null">
+            AND c.create_time >= #{params.createTimeStart}
+        </if>
+        <if test="params.createTimeEnd != null">
+            AND c.create_time &lt;= #{params.createTimeEnd}
+        </if>
+        ORDER BY c.create_time DESC
+    </select>
+
+    <!-- 查询商家商品评价列表（分页） -->
+    <select id="selectByShopId" resultType="com.wuyi.mall.vo.CommentVO">
+        SELECT
+            c.id,
+            c.order_item_id,
+            c.product_id,
+            p.name AS productName,
+            p.image AS productImage,
+            c.user_id,
+            u.nickname AS userNickname,
+            c.content,
+            c.score,
+            c.images,
+            c.create_time
+        FROM comment c
+        LEFT JOIN product p ON c.product_id = p.id
+        LEFT JOIN user u ON c.user_id = u.id
+        WHERE p.shop_id = #{params.shopId}
+        <if test="params.productId != null">
+            AND c.product_id = #{params.productId}
+        </if>
+        <if test="params.score != null">
+            AND c.score = #{params.score}
+        </if>
+        <if test="params.createTimeStart != null">
+            AND c.create_time >= #{params.createTimeStart}
+        </if>
+        <if test="params.createTimeEnd != null">
+            AND c.create_time &lt;= #{params.createTimeEnd}
+        </if>
+        ORDER BY c.create_time DESC
+    </select>
+
+    <!-- 查询商品评价列表（公共，分页） -->
+    <select id="selectByProductId" resultType="com.wuyi.mall.vo.CommentVO">
+        SELECT
+            c.id,
+            c.order_item_id,
+            c.product_id,
+            p.name AS productName,
+            p.image AS productImage,
+            c.user_id,
+            u.nickname AS userNickname,
+            c.content,
+            c.score,
+            c.images,
+            c.create_time
+        FROM comment c
+        LEFT JOIN product p ON c.product_id = p.id
+        LEFT JOIN user u ON c.user_id = u.id
+        WHERE c.product_id = #{productId}
+        ORDER BY c.create_time DESC
+    </select>
+
+    <!-- 查询商品评价统计信息 -->
+    <select id="selectProductCommentStats" resultType="java.util.Map">
+        SELECT
+            ROUND(IFNULL(AVG(score), 0), 1) AS averageScore,
+            COUNT(*) AS commentCount
+        FROM comment
+        WHERE product_id = #{productId}
+    </select>
+
+</mapper>

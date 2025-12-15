@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wuyi.mall.mapper.OrderMapper">
+
+    <!-- 更新订单状态 -->
+    <update id="updateStatusById">
+        UPDATE `order`
+        SET `status` = #{status}
+        WHERE id = #{id}
+          AND `status` = #{beforeStatus}
+    </update>
+
+    <!-- 检查订单是否归属当前商家 -->
+    <select id="checkOrderBelongToMerchant" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM `order` o
+        JOIN order_item oi ON o.id = oi.order_id
+        JOIN product p ON oi.product_id = p.id
+        WHERE o.id = #{orderId}
+          AND p.shop_id = (SELECT shop_id FROM user WHERE id = #{userId})
+    </select>
+
+    <!-- 根据订单ID查询订单（带行锁） -->
+    <select id="selectOrderByIdWithLock" resultType="com.wuyi.mall.entity.Order">
+        SELECT * FROM `order` WHERE id = #{id} FOR UPDATE
+    </select>
+
+    <!-- 根据订单编号查询订单 -->
+    <select id="selectByOrderNo" resultType="com.wuyi.mall.entity.Order">
+        SELECT * FROM `order` WHERE order_no = #{orderNo}
+    </select>
+
+</mapper>

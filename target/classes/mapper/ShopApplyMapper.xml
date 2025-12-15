@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wuyi.mall.mapper.ShopApplyMapper">
+
+    <!-- 根据商家ID查询商铺申请列表（分页） -->
+    <select id="selectByMerchantId" resultType="com.wuyi.mall.entity.ShopApply">
+        SELECT * FROM shop_apply
+        WHERE merchant_id = #{merchantId}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据状态查询商铺申请列表（分页） -->
+    <select id="selectByStatus" resultType="com.wuyi.mall.entity.ShopApply">
+        SELECT * FROM shop_apply
+        WHERE 1=1
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <if test="startTime != null">
+            AND create_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND create_time &lt;= #{endTime}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 检查商铺名称是否已存在 -->
+    <select id="checkShopNameExists" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM shop_apply WHERE shop_name = #{shopName}
+    </select>
+
+    <!-- 根据商家ID查询待审核的商铺申请数量 -->
+    <select id="countPendingByMerchantId" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM shop_apply WHERE merchant_id = #{merchantId} AND status = 0
+    </select>
+
+</mapper>

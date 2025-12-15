@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wuyi.mall.mapper.PaymentRecordMapper">
+
+    <!-- 根据订单ID查询支付记录 -->
+    <select id="selectByOrderId" resultType="com.wuyi.mall.entity.PaymentRecord">
+        SELECT * FROM payment_record WHERE order_id = #{orderId}
+    </select>
+
+    <!-- 根据交易流水号查询支付记录 -->
+    <select id="selectByTradeNo" resultType="com.wuyi.mall.entity.PaymentRecord">
+        SELECT * FROM payment_record WHERE trade_no = #{tradeNo}
+    </select>
+
+    <!-- 客户查询自身支付记录（分页） -->
+    <select id="selectByUserId" resultType="com.wuyi.mall.entity.PaymentRecord">
+        SELECT * FROM payment_record
+        WHERE user_id = #{userId}
+        <if test="orderId != null">
+            AND order_id = #{orderId}
+        </if>
+        <if test="payType != null and payType != ''">
+            AND pay_type = #{payType}
+        </if>
+        <if test="startTime != null">
+            AND create_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND create_time &lt;= #{endTime}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 商家查询自家订单支付记录（分页） -->
+    <select id="selectByShopId" resultType="com.wuyi.mall.entity.PaymentRecord">
+        SELECT pr.* FROM payment_record pr
+        JOIN `order` o ON pr.order_id = o.id
+        JOIN order_item oi ON o.id = oi.order_id
+        JOIN product p ON oi.product_id = p.id
+        WHERE p.shop_id = #{shopId}
+        <if test="orderNo != null and orderNo != ''">
+            AND o.order_no = #{orderNo}
+        </if>
+        <if test="payStatus != null">
+            AND pr.status = #{payStatus}
+        </if>
+        <if test="startTime != null">
+            AND pr.create_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND pr.create_time &lt;= #{endTime}
+        </if>
+        ORDER BY pr.create_time DESC
+    </select>
+
+    <!-- 管理员查询全平台支付记录（分页） -->
+    <select id="selectByAdmin" resultType="com.wuyi.mall.entity.PaymentRecord">
+        SELECT pr.* FROM payment_record pr
+        LEFT JOIN `order` o ON pr.order_id = o.id
+        LEFT JOIN user u ON pr.user_id = u.id
+        LEFT JOIN order_item oi ON o.id = oi.order_id
+        LEFT JOIN product p ON oi.product_id = p.id
+        <where>
+            <if test="params.userId != null">
+                AND pr.user_id = #{params.userId}
+            </if>
+            <if test="params.shopId != null">
+                AND p.shop_id = #{params.shopId}
+            </if>
+            <if test="params.payType != null and params.payType != ''">
+                AND pr.pay_type = #{params.payType}
+            </if>
+            <if test="params.payStatus != null">
+                AND pr.status = #{params.payStatus}
+            </if>
+            <if test="params.startTime != null">
+                AND pr.create_time &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null">
+                AND pr.create_time &lt;= #{params.endTime}
+            </if>
+        </where>
+        ORDER BY pr.create_time DESC
+    </select>
+
+    <!-- 查询超时未支付的支付记录 -->
+    <select id="selectTimeoutPayments" resultType="com.wuyi.mall.entity.PaymentRecord">
+        SELECT * FROM payment_record
+        WHERE status = 0
+          AND create_time &lt; #{timeoutTime}
+    </select>
+
+    <!-- 更新支付状态 -->
+    <update id="updatePayStatus">
+        UPDATE payment_record
+        SET status = #{status},
+            trade_no = #{tradeNo}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

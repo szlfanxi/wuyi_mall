@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wuyi.mall.mapper.DiscountActivityMapper">
+
+    <!-- 按商铺ID和状态查询打折活动（分页） -->
+    <select id="selectByShopId" resultType="com.wuyi.mall.entity.DiscountActivity">
+        SELECT * FROM discount_activity
+        WHERE shop_id = #{shopId}
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 按状态和时间查询有效打折活动（用于缓存） -->
+    <select id="selectValidDiscountActivities" resultType="com.wuyi.mall.entity.DiscountActivity">
+        SELECT * FROM discount_activity
+        WHERE status = 1
+          AND now() BETWEEN start_time AND end_time
+        <if test="shopId != null">
+            AND shop_id = #{shopId}
+        </if>
+        ORDER BY start_time DESC
+    </select>
+
+    <!-- 管理员查询所有打折活动（分页，支持多条件筛选） -->
+    <select id="selectByAdmin" resultType="com.wuyi.mall.entity.DiscountActivity">
+        SELECT * FROM discount_activity
+        <where>
+            <if test="params.shopId != null">
+                AND shop_id = #{params.shopId}
+            </if>
+            <if test="params.startTime != null">
+                AND create_time &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null">
+                AND create_time &lt;= #{params.endTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据ID查询打折活动（包含商品信息） -->
+    <select id="selectWithProductInfo" resultType="com.wuyi.mall.entity.DiscountActivity">
+        SELECT * FROM discount_activity
+        WHERE id = #{id}
+    </select>
+
+</mapper>
